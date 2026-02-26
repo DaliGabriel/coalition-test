@@ -28,7 +28,7 @@ A task management application built with Laravel 11. Tasks can be created, edite
 
 ```bash
 # 1. Clone and enter the project
-git clone <repo-url> && cd coalition-test
+git clone https://github.com/DaliGabriel/coalition-test.git && cd coalition-test
 
 # 2. Configure environment
 cp .env.example .env
@@ -42,7 +42,7 @@ docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
-The application will be available at <http://localhost:8080>.
+The application will be available at <http://localhost:8080> (set `APP_PORT=8080` in `.env` to override the default port 80).
 
 Update your `.env` to match the Docker database service:
 

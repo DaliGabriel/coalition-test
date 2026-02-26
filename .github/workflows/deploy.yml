@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            APP_DIR="/home/deployer/coalition-test"
+
+            # Clone on first deploy, pull on subsequent deploys
+            if [ ! -d "$APP_DIR" ]; then
+              git clone https://github.com/DaliGabriel/coalition-test.git "$APP_DIR"
+            else
+              cd "$APP_DIR" && git pull origin main
+            fi
+
+            cd "$APP_DIR"
+
+            # Build and start containers
+            docker compose up -d --build
+
+            # Install dependencies and run migrations
+            docker compose exec -T app composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            docker compose exec -T app php artisan migrate --force
+            docker compose exec -T app php artisan config:cache
+            docker compose exec -T app php artisan route:cache
