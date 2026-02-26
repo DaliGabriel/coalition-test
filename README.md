@@ -235,7 +235,17 @@ See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ### Continuous Deployment
 
-> CD pipeline coming soon — triggered on merge to `main`, deploys to VPS via SSH.
+Every push to `main` automatically deploys to the production VPS via SSH:
+
+1. Pulls latest code on the server
+2. Rebuilds Docker containers
+3. Runs `composer install --no-dev`
+4. Runs `php artisan migrate --force`
+5. Refreshes config and route caches
+
+See [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+**Live demo:** http://195.201.29.45
 
 ---
 
