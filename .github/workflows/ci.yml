@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ["8.3"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy environment file
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run tests
+        run: composer run test
