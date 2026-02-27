@@ -24,6 +24,8 @@ jobs:
 
             APP_DIR="/home/deployer/coalition-test"
 
+            git config --global --add safe.directory "$APP_DIR"
+
             # Clone on first deploy, pull on subsequent deploys
             if [ ! -d "$APP_DIR" ]; then
               git clone https://github.com/DaliGabriel/coalition-test.git "$APP_DIR"
